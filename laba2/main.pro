@@ -1,58 +1,131 @@
-﻿implement main
-    open core, stdio, file
+mplement main
+    open core, file, stdio
 
 domains
-    accesoryType = main; additionally.
+    type = матплата; видеокарта; процессор; оп; ssd.
+    slot = ddr4; ddr3; gddr6; lga1200; lga1700; am4; pcie_3_x4; pcie_4_x4.
 
-class facts - pcAcessoryDb
-    accessory : (integer Id, string Name, string Connection, string Manufacturer, integer Year).
-    conInterface : (string Name, string Connection).
-    additionalSlots : (string Name, string AddSlots).
-    product : (string Name, integer Price).
+class facts - accessories
+    комплектующее : (integer ID, string Название, type Тип, string Марка, string Дата).
+    слоты : (integer ID, slot Слот).
+    интерфейс : (integer ID, slot Слот).
+    продукт : (integer ID, real Цена).
+
+class facts
+    s : (real Sum) single.
+
+clauses
+    s(0).
 
 class predicates
-    iscomparable : (string Accessory1, string Accessory2) nondeterm anyflow.
-    finalsumm : (string Product1, string Product2, string Product3, string Product4) nondeterm anyflow.
-    whichisolder : (string Accessory1, string Accessory2) nondeterm anyflow.
+    сборка_цена : (integer ID1, integer ID2, integer ID3, integer ID4, integer ID5) nondeterm.
+    доступные : (slot Слот) nondeterm.
+    совместимость_комплектующих : (string Название1, string Название2) nondeterm.
+    совместимость_сборки : (string Название1, string Название2, string Название3, string Название4, string Название5) nondeterm.
+    оптимальная_сборка : (real Цена) nondeterm.
 
 clauses
-    iscomparable(Accessory1, Accessory2) :-
-        accessory(_, Accessory1, Conn1, _, _),
-        accessory(_, Accessory2, Conn2, _, _),
-        Conn1 = Conn2.
+    сборка_цена(A, B, C, D, E) :-
+        слоты(A, X1),
+        слоты(A, X2),
+        слоты(A, X3),
+        слоты(A, X4),
+        интерфейс(B, X1),
+        интерфейс(C, X2),
+        интерфейс(D, X3),
+        интерфейс(E, X4),
+        assert(s(0)),
+        продукт(A, S1),
+        продукт(B, S2),
+        продукт(C, S3),
+        продукт(D, S4),
+        продукт(E, S5),
+        s(Sum),
+        assert(s(Sum + S1 + S2 + S3 + S4 + S5)).
 
-    finalsumm(Product1, Product2, Product3, Product4) :-
-        product(Product1, Price1),
-        product(Product2, Price2),
-        product(Product3, Price3),
-        product(Product4, Price4),
-        write(Price1 + Price2 + Price3 + Price4).
+    %Доступные комплектующие определенного слота
+    доступные(X) :-
+        комплектующее(ID1, К1, _, _, _),
+        комплектующее(ID2, К2, _, _, _),
+        слоты(ID1, X),
+        интерфейс(ID2, X),
+        write("\t", К1, " и ", К2),
+        nl.
 
-    whichisolder(Accessory1, Accessory2) :-
-        accessory(_, Accessory1, _, _, Year1),
-        accessory(_, Accessory2, _, _, Year2),
-        Year1 < Year2,
-        write('1st accessory is older').
+    %Совместимость двух оборудований
+    совместимость_комплектующих(К1, К2) :-
+        комплектующее(ID1, К1, матплата, _, _),
+        комплектующее(ID2, К2, _, _, _),
+        слоты(ID1, X1),
+        интерфейс(ID2, X2),
+        if X1 = X2 then
+            write("\tСлот ", X1, " и ", К2, " (", X2, ")", " совместимы")
+        else
+            write("\tСлот ", X1, " и ", К2, " (", X2, ")", " несовместимы")
+        end if,
+        nl.
+
+    %Сборка готового компьютера из заданного списка комплектующих
+    совместимость_сборки(К1, К2, К3, К4, К5) :-
+        комплектующее(ID1, К1, матплата, _, _),
+        комплектующее(ID2, К2, видеокарта, _, _),
+        комплектующее(ID3, К3, процессор, _, _),
+        комплектующее(ID4, К4, оп, _, _),
+        комплектующее(ID5, К5, ssd, _, _),
+        if сборка_цена(ID1, ID2, ID3, ID4, ID5) then
+            s(Sum),
+            write("\nСборка из следующих комплектующих:\n\t", К1, "\n\t", К2, "\n\t", К3, "\n\t", К4, "\n\t", К5, "\n"),
+            write("Цена сборки: ", Sum)
+        else
+            write("\nИз этих комплектующих:\n\t", К1, "\n\t", К2, "\n\t", К3, "\n\t", К4, "\n\t", К5, "\nполноценную сборку не собрать!")
+        end if,
+        nl.
+
+    %Сборка, подходящая по цене
+    оптимальная_сборка(A) :-
+        комплектующее(ID1, К1, матплата, _, _),
+        комплектующее(ID2, К2, видеокарта, _, _),
+        комплектующее(ID3, К3, процессор, _, _),
+        комплектующее(ID4, К4, оп, _, _),
+        комплектующее(ID5, К5, ssd, _, _),
+        сборка_цена(ID1, ID2, ID3, ID4, ID5),
+        s(Sum),
+        Sum <= A,
+        write("\nОптимальная сборка из следующих комплектующих:\n\t", К1, "\n\t", К2, "\n\t", К3, "\n\t", К4, "\n\t", К5, "\n"),
+        write("Цена сборки: ", Sum),
+        nl.
 
 clauses
     run() :-
-        file::consult("../consultfile.txt", pcAcessoryDb),
-        fail.
-    run() :-
-        iscomparable(A1, A2),
-        stdio::write("Accessory ", A1, " comparable with accessory", A2, "\n"),
+        file::consult("../data.txt", accessories),
         fail.
 
     run() :-
-        finalsumm(_P1, _P2, _P3, _P4),
+        X = lga1700,
+        write("Доступные комплектующие для слота ", X, ":\n"),
+        доступные(X),
         fail.
 
     run() :-
-        whichisolder(_A1, _A2),
+        X1 = "MSI H510M-A PRO",
+        X2 = "GIGABYTE GeForce RTX 3060 Ti",
+        write("\nСопоставляем слоты мат. плата ", X1, " и компл. ", X2, ":\n"),
+        совместимость_комплектующих(X1, X2),
         fail.
 
     run() :-
-        stdio::write("End test\n").
+        совместимость_сборки("MSI H510M-A PRO", "Sapphire AMD Radeon RX 6600", "Intel Core i3-10105", "Kingston FURY 32ГБ",
+            "SSD Samsung 980 1000ГБ, M.2"),
+        fail.
+
+    run() :-
+        nl,
+        write("Введите цену для сборки: "),
+        X = read(),
+        оптимальная_сборка(X),
+        fail.
+
+    run().
 
 end implement main
 
