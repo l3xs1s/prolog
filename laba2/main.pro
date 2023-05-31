@@ -1,4 +1,4 @@
-mplement main
+implement main
     open core, file, stdio
 
 domains
@@ -97,7 +97,7 @@ clauses
 
 clauses
     run() :-
-        file::consult("../data.txt", accessories),
+        file::consult("../consultfile.txt", accessories),
         fail.
 
     run() :-
