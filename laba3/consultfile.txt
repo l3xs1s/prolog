@@ -1,0 +1,38 @@
+﻿﻿accessory(1, 'Power Unit', "6 PIN", 'Cougar', 2012).
+accessory(2, 'GPU', "6 PIN", 'NVidia', 2019).
+accessory(3, 'CPU', "LGA 2011", 'Intel', 2015).
+accessory(4, 'RAM', "PC3", 'HyperX', 2014).
+accessory(5, 'Motherboard', "8 PIN", 'Gigabyte', 2012).
+accessory(6, 'Fan', "2Pin", 'Cooler', 2015).
+accessory(7, 'SSD', "M2", 'SAMSUNG', 2017).
+accessory(8, 'HDD', "SATA", 'SAMSUNG', 2016).
+
+
+conInterface('Power Unit','8 PIN').
+conInterface('GPU', 'PCI Express').
+conInterface('CPU', 'LGA 2011').
+conInterface('RAM', 'PC3').
+conInterface('Motherboard','6 PIN').
+conInterface('Fan',_).
+conInterface('SSD',_).
+conInterface('HDD', 'eSata').
+
+
+additionalSlots('Power Unit', '4 PIN').
+additionalSlots('GPU', '6 PIN').
+additionalSlots('CPU').
+additionalSlots('RAM','PC3').
+additionalSlots('Motherboard','PCI Express').
+additionalSlots('Fan',_).
+additionalSlots('SSD',_).
+additionalSlots('HDD', 'USB').
+
+
+product('Power Unit', 10000).
+product('GPU', 16000).
+product('CPU', 13000).
+product('RAM', 4000).
+product('Motherboard', 7000).
+product('Fan', 900).
+product('SSD', 4000).
+product('HDD', 3000).
